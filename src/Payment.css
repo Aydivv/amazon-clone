@@ -26,8 +26,9 @@
     border-right: 1px solid lightgray;
 }
 
-.payment__sectionAddress, .payment__sectionItems{
+.payment__sectionAddress, .payment__sectionItems ,.payment__sectionDetails{
     flex: 0.8;
+    margin-left: 5px;
 }
 
 
