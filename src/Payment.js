@@ -27,12 +27,16 @@ function Payment() {
   useEffect(() => {
         //generate strip secret which allows us to charge a customer. It needs to be updated whenever basket changes because price changes.
 
+        const bTotal = getBasketTotal(basket) * 100;
+        const bURL = '/payments/create?total=' + bTotal;
+
         const getClientSecret = async () => {
             //axios is a way of making requests like post get etc
             const response = await axios({
                 method: 'post',
                 // Stripe expects the total in a currency's sub units. Like we would say 500 fils for 5 dirhams.
-                url:`/payments/create?total=${getBasketTotal(basket) * 100}`
+                url:bURL,
+                baseURL: 'http://localhost:5001/clone-a50ec/us-central1/api'
             });
             setClientSecret(response.data.clientSecret)
         }
@@ -40,6 +44,8 @@ function Payment() {
         getClientSecret();
         //useEffect runs this code whenever Paymenbt.js is called or when the element inside the array below (basket) changes.
   }, [basket])
+
+  console.log("CLIENT SECRET IS >>>>", clientSecret)
 
   const handleSubmit = async (event) => {
     //stripe stuff
@@ -56,6 +62,10 @@ function Payment() {
         setSucceeded(true);
         setError(null);
         setProcessing(false);
+
+        dispatch({
+            type: 'EMPTY_BASKET'
+        })
 
         navigate("/orders", {replace: true});
     })

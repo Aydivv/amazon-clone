@@ -1,7 +1,7 @@
 //Data layer
 export const initialState = {
   basket: [],
-  user: null
+  user: null,
 };
 
 // selector
@@ -26,24 +26,28 @@ const reducer = (state, action) => {
       );
 
       let newBasket = [...state.basket];
-      if (index >=0) {
+      if (index >= 0) {
         newBasket.splice(index, 1);
-
-      } else{
-        console.warn(
-          'Cant remove product as its not in basket!'
-          )
+      } else {
+        console.warn("Cant remove product as its not in basket!");
       }
 
       return {
         ...state,
-        basket: newBasket
-      }
+        basket: newBasket,
+      };
+
+    case "EMPTY_BASKET":
+      return {
+        ...state,
+        basket: [],
+      };
+
     case "SET_USER":
       return {
         ...state,
-        user: action.user
-      }
+        user: action.user,
+      };
 
     default:
       return state;
