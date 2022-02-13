@@ -1,10 +1,43 @@
-import React from 'react';
-import './Orders.css';
+import {collection, doc, onSnapshot, orderBy,query} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { db } from "./firebase";
+import Order from "./Order";
+import "./Orders.css";
+import { useStateValue } from "./StateProvider";
 
 function Orders() {
-  return <div className='orders'>
-      
-  </div>;
+  const [{ basket, user }, dispatch] = useStateValue();
+  const [orders, setOrders] = useState([]);
+
+  const lol = "lol";
+
+  useEffect(() => {
+    if (user) {
+      const docsRef = collection(db, `users/${user?.uid}/orders`);
+      const q = query(docsRef, orderBy("created", "desc"));
+
+      onSnapshot(q, (snapshot) => {
+        setOrders(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data(),
+          }))
+        );
+      });
+    } else {
+      setOrders([]);
+    }
+  }, [user]);
+  return (
+    <div className="orders">
+      <h1>Your Orders</h1>
+      <div className="orders__order">
+        {orders?.map(ord => (
+          <Order order={ord} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default Orders;

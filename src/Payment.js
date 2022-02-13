@@ -1,6 +1,7 @@
 import { Card } from "@mui/material";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import axios from "axios";
+import { base } from "./axios";
 import React, { useEffect, useState } from "react";
 import CurrencyFormat from "react-currency-format";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -8,6 +9,9 @@ import CheckoutProduct from "./CheckoutProduct";
 import "./Payment.css";
 import { getBasketTotal } from "./reducer";
 import { useStateValue } from "./StateProvider";
+import { db } from "./firebase";
+import { doc, setDoc } from "firebase/firestore";
+
 
 function Payment() {
   const [{ basket, user }, dispatch] = useStateValue();
@@ -36,7 +40,7 @@ function Payment() {
                 method: 'post',
                 // Stripe expects the total in a currency's sub units. Like we would say 500 fils for 5 dirhams.
                 url:bURL,
-                baseURL: 'http://localhost:5001/clone-a50ec/us-central1/api'
+                baseURL: base
             });
             setClientSecret(response.data.clientSecret)
         }
@@ -58,6 +62,21 @@ function Payment() {
         }
     }).then(({ paymentIntent }) => {
         // paymentIntent is the payment confirmation
+        const users = doc(db, `users/${user?.uid}/orders/${paymentIntent.id}`);
+
+        const docData = {
+            basket: basket,
+            amount: paymentIntent.amount,
+            created: paymentIntent.created
+        }
+
+        setDoc(users,docData,{ merge: true }).then(() => {
+            console.log("This value has been written to the database");
+        })
+        .catch((error) => {
+            console.log(`ERROR ${error}`);
+        })
+        
 
         setSucceeded(true);
         setError(null);
@@ -132,7 +151,7 @@ function Payment() {
                   thousandSeparator={true}
                   prefix={"$"}
                 />
-                <button disabled={processing || disabled || succeeded}>
+                <button className="payment__Button" disabled={processing || disabled || succeeded}>
                   <span>{processing ? <p>Processing</p> : "Buy Now"}</span>
                 </button>
               </div>
