@@ -5,10 +5,22 @@ import ShoppingBasket from "@mui/icons-material/ShoppingBasket";
 import { useStateValue } from "./StateProvider";
 import { getBasketTotal } from "./reducer";
 import { useNavigate } from "react-router-dom";
+import { auth } from "./firebase";
 
 function Subtotal() {
-  const [{ basket }, dispatch] = useStateValue();
+  const [{ basket,user }, dispatch] = useStateValue();
   const navigate = useNavigate();
+
+  const checkUser = (e) => {
+    if(user){
+      if(basket.length == 0){
+        alert("Basket is Empty.")
+      } else {
+      navigate("/payment")}
+    } else {
+      alert("Please log in.")
+    }
+  }
 
   return (
     <div className="subtotal">
@@ -30,8 +42,7 @@ function Subtotal() {
         thousandSeparator={true}
         prefix={"$"}
       />
-
-      <button onClick={e => navigate('/payment')}>Proceed to Checkout</button>
+      <button onClick={checkUser}>Proceed to Checkout</button>
     </div>
   );
 }
